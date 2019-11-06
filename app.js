@@ -1,12 +1,14 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cors = require('cors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var cors = require('cors');
+const MongoService = require('./services/MongoService');
+const EchoDao = require('./daos/EchoDao');
+const { createRouter: createRootRouter } = require('./routes/index');
+const usersRouter = require('./routes/users');
 
 // MongoDB start
 const MongoClient = require('mongodb').MongoClient;
@@ -22,7 +24,9 @@ client.connect()
   });
 // MongoDB end
 
-
+const echoDao = new EchoDao({mongoClient: client});
+const mongoService = new MongoService({mongoClient: client, echoDao});
+const indexRouter = createRootRouter({mongoService});
 var app = express();
 
 app.use(cors());
